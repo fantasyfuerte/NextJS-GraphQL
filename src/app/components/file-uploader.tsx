@@ -18,11 +18,21 @@ function FileUploader({}: Props) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const file = formData.get("file") as File;
-    if (!file || file.type !== "application/pdf")
+    if (!file || file.type !== "application/pdf") {
       setStatus(StatusVariables.ERROR);
+      return;
+    }
     setStatus(StatusVariables.UPLOADING);
+    try {
+      const response = await fetch("api/upload", {
+        method: "POST",
+        body: file,
+      });
+      if (response.ok) setStatus(StatusVariables.SUCCESS);
+    } catch (error) {
+      setStatus(StatusVariables.ERROR);
+    }
   }
-
   const buttonText =
     status === StatusVariables.READY
       ? "Subir Archivo"
@@ -30,10 +40,10 @@ function FileUploader({}: Props) {
       ? "Subiendo..."
       : status === StatusVariables.SUCCESS
       ? "Archivo Subido"
-      : "Error";
+      : "Intentar de nuevo";
 
   return (
-    <form className=" flex flex-col items-center gap-5" onSubmit={Submit}>
+    <form className="flex flex-col items-center gap-5" onSubmit={Submit}>
       <input type="file" name="file" accept=".pdf" className="" />
       <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
         {buttonText}
