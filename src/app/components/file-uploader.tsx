@@ -34,9 +34,9 @@ function FileUploader({}: Props) {
         { method: "POST" }
       );
       if (response.status === 200) {
-        setStatus(StatusVariables.SUCCESS);
         const { filename } = await response.json();
         setFilename(filename);
+        setStatus(StatusVariables.SUCCESS);
         setFile(file);
       } else {
         setStatus(StatusVariables.ERROR);
@@ -88,7 +88,13 @@ function FileUploader({}: Props) {
           </button>
         )}
       </form>
-      {status == StatusVariables.SUCCESS && <article></article>}
+      {status == StatusVariables.SUCCESS && file && (
+        <article>
+          <p>Archivo subido con éxito</p>
+          <p>Nombre del archivo: {filename}</p>
+          <p>Tamaño del archivo: {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+        </article>
+      )}
     </article>
   );
 }
