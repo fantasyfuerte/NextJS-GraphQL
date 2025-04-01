@@ -19,6 +19,7 @@ function FileUploader({}: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [filename, setFilename] = useState<string>("");
 
+  // Hacer algo con graphQL
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
