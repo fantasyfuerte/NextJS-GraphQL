@@ -61,37 +61,35 @@ function FileUploader({}: Props) {
       : "Intentar de nuevo";
 
   return (
-    <form className="flex flex-col items-center gap-5" onSubmit={Submit}>
-      <button
-        className="text-center text-xl text-emerald-400 font-bold"
-        type="button"
-      >
-        <label
-          className="cursor-pointer hover:bg-black/10 p-2 my-4 rounded-lg hover:opacity-50 animate-pulse"
-          htmlFor="file-input"
+    <article className="flex flex-col items-center gap-5">
+      <form onSubmit={Submit} className="flex flex-col items-center gap-5">
+        <button
+          className="text-center text-xl text-emerald-400 font-bold"
+          type="button"
         >
-          Sube un archivo PDF
-        </label>
-        <input
-          onChange={handleChange}
-          type="file"
-          name="file"
-          accept=".pdf"
-          id="file-input"
-          className="hidden"
-        />
-      </button>
-      {status !== StatusVariables.INITIAL && (
-        <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
-          {buttonText}
+          <label
+            className="cursor-pointer hover:bg-black/10 p-2 my-4 rounded-lg hover:opacity-50 animate-pulse"
+            htmlFor="file-input"
+          >
+            Sube un archivo PDF
+          </label>
+          <input
+            onChange={handleChange}
+            type="file"
+            name="file"
+            accept=".pdf"
+            id="file-input"
+            className="hidden"
+          />
         </button>
-      )}
-      {status == StatusVariables.SUCCESS && (
-        <p className="text-lg font-semibold text-center">
-          Archivo cargado: {filename}
-        </p>
-      )}
-    </form>
+        {status !== StatusVariables.INITIAL && (
+          <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
+            {buttonText}
+          </button>
+        )}
+      </form>
+      {status == StatusVariables.SUCCESS && <article></article>}
+    </article>
   );
 }
 
