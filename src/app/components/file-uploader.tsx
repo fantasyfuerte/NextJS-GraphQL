@@ -44,7 +44,10 @@ function FileUploader({}: Props) {
 
   return (
     <form className="flex flex-col items-center gap-5" onSubmit={Submit}>
-      <input type="file" name="file" accept=".pdf" className="" />
+      <input type="file" name="file" accept=".pdf" className="hidden" />
+      <p className="text-center text-xl text-emerald-400 font-bold cursor-pointer">
+        Sube un archivo PDF
+      </p>
       <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
         {buttonText}
       </button>
