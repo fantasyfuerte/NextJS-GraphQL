@@ -13,6 +13,7 @@ function FileUploader({}: Props) {
   }
 
   const [status, setStatus] = useState<StatusVariables>(StatusVariables.READY);
+  const [filename, setFilename] = useState<string>("undefined");
 
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,6 +31,8 @@ function FileUploader({}: Props) {
       );
       if (response.status === 200) {
         setStatus(StatusVariables.SUCCESS);
+        const {filename} = await response.json();
+        setFilename(filename);
       } else {
         setStatus(StatusVariables.ERROR);
       }

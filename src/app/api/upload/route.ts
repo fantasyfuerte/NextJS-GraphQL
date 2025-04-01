@@ -7,5 +7,5 @@ export async function POST(request: NextRequest) {
   if (!filename) {
     return NextResponse.json({ message: "No file uploaded" }, { status: 400 });
   }
-  return NextResponse.json({ message: "File uploaded successfully" });
+  return NextResponse.json({ message: "File uploaded successfully",filename });
 }
