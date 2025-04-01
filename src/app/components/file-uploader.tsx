@@ -24,11 +24,15 @@ function FileUploader({}: Props) {
     }
     setStatus(StatusVariables.UPLOADING);
     try {
-      const response = await fetch("api/upload", {
-        method: "POST",
-        body: file.type,
-      });
-      if (response.ok) setStatus(StatusVariables.SUCCESS);
+      const response = await fetch(
+        `api/upload/?file=${encodeURIComponent(file.name)}`,
+        { method: "POST" }
+      );
+      if (response.status === 200) {
+        setStatus(StatusVariables.SUCCESS);
+      } else {
+        setStatus(StatusVariables.ERROR);
+      }
     } catch (error) {
       setStatus(StatusVariables.ERROR);
     }
