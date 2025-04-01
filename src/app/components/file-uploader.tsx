@@ -31,7 +31,7 @@ function FileUploader({}: Props) {
       );
       if (response.status === 200) {
         setStatus(StatusVariables.SUCCESS);
-        const {filename} = await response.json();
+        const { filename } = await response.json();
         setFilename(filename);
       } else {
         setStatus(StatusVariables.ERROR);
@@ -69,6 +69,7 @@ function FileUploader({}: Props) {
       <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
         {buttonText}
       </button>
+      <p className="text-center text-3xl">{filename}</p>
     </form>
   );
 }
