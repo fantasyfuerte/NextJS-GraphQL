@@ -26,7 +26,7 @@ function FileUploader({}: Props) {
     try {
       const response = await fetch("api/upload", {
         method: "POST",
-        body: file,
+        body: file.type,
       });
       if (response.ok) setStatus(StatusVariables.SUCCESS);
     } catch (error) {
@@ -48,7 +48,7 @@ function FileUploader({}: Props) {
         className="text-center text-xl text-emerald-400 font-bold"
         type="button"
       >
-        <label className="cursor-pointer" htmlFor="file-input">
+        <label className="cursor-pointer hover:opacity-50" htmlFor="file-input">
           Sube un archivo PDF
         </label>
         <input
