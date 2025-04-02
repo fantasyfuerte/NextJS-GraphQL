@@ -20,11 +20,16 @@ function FileUploader() {
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const file = formData.get("file") as File;
-    if (!file || file.type !== "application/pdf") {
-      setStatus(StatusVariables.ERROR);
-      return;
-    }
+
+    const files = formData.getAll("file") as File[];
+
+    files.forEach((file) => {
+      if (!file || file.type !== "application/pdf") {
+        setStatus(StatusVariables.ERROR);
+        return;
+      }
+    });
+
     setStatus(StatusVariables.UPLOADING);
     try {
       // const formData = new FormData()
