@@ -14,14 +14,13 @@ function FileUploader() {
   const [status, setStatus] = useState<StatusVariables>(
     StatusVariables.INITIAL
   );
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   // Hacer algo con graphQL
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const file = formData.get("file") as File;
-
     if (!file || file.type !== "application/pdf") {
       setStatus(StatusVariables.ERROR);
       return;
@@ -30,15 +29,15 @@ function FileUploader() {
     try {
       // const formData = new FormData()
       // formData.append("file",file)
-      const response = await fetch(
-        `api/upload/?file=${encodeURIComponent(file.name)}`,
-        { method: "POST", body: formData }
-      );
-      if (response.status === 200) {
-        setStatus(StatusVariables.SUCCESS);
-      } else {
+      const response = await fetch(`api/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
         setStatus(StatusVariables.ERROR);
+        return;
       }
+      setStatus(StatusVariables.SUCCESS);
     } catch (error) {
       setStatus(StatusVariables.ERROR);
     }
@@ -50,7 +49,7 @@ function FileUploader() {
       return;
     }
     setStatus(StatusVariables.READY);
-    setFile(e.target.files[0]);
+    setFiles([...e.target.files]);
   }
 
   const buttonText =
@@ -78,6 +77,7 @@ function FileUploader() {
             accept=".pdf"
             id="file-input"
             className="hidden"
+            multiple
           />
         </button>
         {(status == StatusVariables.READY ||
@@ -91,25 +91,28 @@ function FileUploader() {
         <p className="text-3xl font-bold animate-spin">C</p>
       )}
       {(status == StatusVariables.READY || status == StatusVariables.SUCCESS) &&
-        file && (
-          <article>
-            <p>
-              Archivo {status == StatusVariables.SUCCESS ? "subido" : "cargado"}{" "}
-              con éxito
-            </p>
-            <p>
-              Nombre del archivo:{" "}
-              <strong className="text-emerald-800">
-                {file.name.split(".")[0]}
-              </strong>
-            </p>
-            <p>
-              Tamaño del archivo:{" "}
-              <strong className="text-emerald-800">
-                {(file.size / 1024 / 1024).toFixed(2)} MB
-              </strong>
-            </p>
-          </article>
+        files && (
+          <ul className="flex flex-col gap-2 w-1/2 mt-12">
+            {files.map((file) => (
+              <li key={file.name} className="flex justify-between text-left">
+                <div>
+                  <p>
+                    Nombre:{" "}
+                    <strong className="text-emerald-800">
+                      {file.name.split(".")[0]}
+                    </strong>
+                  </p>
+                  <p>
+                    Tamaño:{" "}
+                    <strong className="text-emerald-800">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </strong>
+                  </p>
+                </div>
+                <button className="hover:opacity-65 font-black ">X</button>
+              </li>
+            ))}
+          </ul>
         )}
     </article>
   );
