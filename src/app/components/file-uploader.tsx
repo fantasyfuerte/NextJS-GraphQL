@@ -88,6 +88,9 @@ function FileUploader({}: Props) {
           </button>
         )}
       </form>
+      {status == StatusVariables.UPLOADING && (
+        <p className="text-3xl font-bold animate-spin">C</p>
+      )}
       {(status == StatusVariables.READY || status == StatusVariables.SUCCESS) &&
         file && (
           <article>
