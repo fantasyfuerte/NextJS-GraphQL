@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 
-interface Props {}
-
-function FileUploader({}: Props) {
+function FileUploader() {
   enum StatusVariables {
     READY = "EMPTY",
     UPLOADING = "UPLOADING",
@@ -23,6 +21,7 @@ function FileUploader({}: Props) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const file = formData.get("file") as File;
+
     if (!file || file.type !== "application/pdf") {
       setStatus(StatusVariables.ERROR);
       return;
