@@ -17,7 +17,6 @@ function FileUploader({}: Props) {
     StatusVariables.INITIAL
   );
   const [file, setFile] = useState<File | null>(null);
-  const [filename, setFilename] = useState<string>("");
 
   // Hacer algo con graphQL
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
@@ -30,15 +29,14 @@ function FileUploader({}: Props) {
     }
     setStatus(StatusVariables.UPLOADING);
     try {
+      // const formData = new FormData()
+      // formData.append("file",file)
       const response = await fetch(
         `api/upload/?file=${encodeURIComponent(file.name)}`,
-        { method: "POST" }
+        { method: "POST", body: formData }
       );
       if (response.status === 200) {
-        const { filename } = await response.json();
-        setFilename(filename);
         setStatus(StatusVariables.SUCCESS);
-        setFile(file);
       } else {
         setStatus(StatusVariables.ERROR);
       }
@@ -48,18 +46,16 @@ function FileUploader({}: Props) {
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) setStatus(StatusVariables.READY);
-    else setStatus(StatusVariables.INITIAL);
+    if (!e.target.files) {
+      setStatus(StatusVariables.INITIAL);
+      return;
+    }
+    setStatus(StatusVariables.READY);
+    setFile(e.target.files[0]);
   }
 
   const buttonText =
-    status === StatusVariables.READY
-      ? "Subir Archivo"
-      : status === StatusVariables.UPLOADING
-      ? "Subiendo..."
-      : status === StatusVariables.SUCCESS
-      ? "Archivo Subido"
-      : "Intentar de nuevo";
+    status === StatusVariables.READY ? "Subir Archivo" : "Subiendo...";
 
   return (
     <article className="flex flex-col items-center gap-5">
@@ -68,12 +64,14 @@ function FileUploader({}: Props) {
           className="text-center text-xl text-emerald-400 font-bold"
           type="button"
         >
-          <label
-            className="cursor-pointer hover:bg-black/10 p-2 my-4 rounded-lg hover:opacity-50 animate-pulse"
-            htmlFor="file-input"
-          >
-            Sube un archivo PDF
-          </label>
+          {status == StatusVariables.INITIAL && (
+            <label
+              className="cursor-pointer hover:bg-black/10 p-2 my-4 rounded-lg hover:opacity-50 animate-pulse"
+              htmlFor="file-input"
+            >
+              Sube un archivo PDF
+            </label>
+          )}
           <input
             onChange={handleChange}
             type="file"
@@ -83,19 +81,34 @@ function FileUploader({}: Props) {
             className="hidden"
           />
         </button>
-        {status !== StatusVariables.INITIAL && (
+        {(status == StatusVariables.READY ||
+          status == StatusVariables.UPLOADING) && (
           <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
             {buttonText}
           </button>
         )}
       </form>
-      {status == StatusVariables.SUCCESS && file && (
-        <article>
-          <p>Archivo subido con éxito</p>
-          <p>Nombre del archivo: {filename}</p>
-          <p>Tamaño del archivo: {(file.size / 1024 / 1024).toFixed(2)} MB</p>
-        </article>
-      )}
+      {(status == StatusVariables.READY || status == StatusVariables.SUCCESS) &&
+        file && (
+          <article>
+            <p>
+              Archivo {status == StatusVariables.SUCCESS ? "subido" : "cargado"}{" "}
+              con éxito
+            </p>
+            <p>
+              Nombre del archivo:{" "}
+              <strong className="text-emerald-800">
+                {file.name.split(".")[0]}
+              </strong>
+            </p>
+            <p>
+              Tamaño del archivo:{" "}
+              <strong className="text-emerald-800">
+                {(file.size / 1024 / 1024).toFixed(2)} MB
+              </strong>
+            </p>
+          </article>
+        )}
     </article>
   );
 }
