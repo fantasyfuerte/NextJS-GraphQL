@@ -32,8 +32,6 @@ function FileUploader() {
 
     setStatus(StatusVariables.UPLOADING);
     try {
-      // const formData = new FormData()
-      // formData.append("file",file)
       const response = await fetch(`api/upload`, {
         method: "POST",
         body: formData,
@@ -56,9 +54,6 @@ function FileUploader() {
     setStatus(StatusVariables.READY);
     setFiles([...e.target.files]);
   }
-
-  const buttonText =
-    status === StatusVariables.READY ? "Subir Archivo" : "Subiendo...";
 
   return (
     <article className="flex flex-col items-center gap-5">
@@ -88,7 +83,7 @@ function FileUploader() {
         {(status == StatusVariables.READY ||
           status == StatusVariables.UPLOADING) && (
           <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
-            {buttonText}
+            {status === StatusVariables.READY ? "Subir Archivo" : "Subiendo..."}
           </button>
         )}
       </form>
