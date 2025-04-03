@@ -62,7 +62,8 @@ function FileUploader() {
   }
 
   function removeFile(file: File) {
-    setFiles(files.filter((f) => f.name !== file.name && f.size !== file.size));
+    setFiles(files.filter((f) => f.name !== file.name || f.size !== file.size));
+    if (files.length === 0) setStatus(StatusVariables.INITIAL);
   }
 
   return (
@@ -130,7 +131,6 @@ function FileUploader() {
               </button>
             </li>
           ))}
-          s
         </ul>
       )}
       <p className="text-3xl font-bold">{message}</p>
