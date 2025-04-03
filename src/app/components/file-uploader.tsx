@@ -19,7 +19,8 @@ function FileUploader() {
 
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    files.forEach((file) => {
+
+    for (const file of files) {
       if (
         !file ||
         file.type !==
@@ -27,14 +28,9 @@ function FileUploader() {
       ) {
         setStatus(StatusVariables.ERROR);
         setMessage("File must be an xlsx file");
+        setFiles([]);
         return;
       }
-    });
-
-    const error = status == StatusVariables.ERROR;
-    if (error) {
-      alert(error);
-      return;
     }
     setStatus(StatusVariables.UPLOADING);
 
@@ -63,6 +59,10 @@ function FileUploader() {
     }
     setStatus(StatusVariables.READY);
     setFiles([...e.target.files]);
+  }
+
+  function removeFile(file: File) {
+    setFiles(files.filter((f) => f.name !== file.name && f.size !== file.size));
   }
 
   return (
@@ -122,12 +122,26 @@ function FileUploader() {
                   </strong>
                 </p>
               </div>
-              <button className="hover:opacity-65 font-black ">X</button>
+              <button
+                onClick={() => removeFile(file)}
+                className="hover:opacity-65 font-black "
+              >
+                X
+              </button>
             </li>
           ))}
+          s
         </ul>
       )}
       <p className="text-3xl font-bold">{message}</p>
+      {status == StatusVariables.ERROR && (
+        <button
+          onClick={() => setStatus(StatusVariables.INITIAL)}
+          className="bg-red-100 px-4 py-2 rounded-lg hover:bg-red-300"
+        >
+          Try again
+        </button>
+      )}
     </article>
   );
 }
