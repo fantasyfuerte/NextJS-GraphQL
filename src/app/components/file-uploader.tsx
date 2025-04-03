@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SlReload, SlTrash } from "react-icons/sl";
 
 function FileUploader() {
   enum StatusVariables {
@@ -33,6 +34,8 @@ function FileUploader() {
       }
     }
     setStatus(StatusVariables.UPLOADING);
+
+    // Procesar excel
 
     try {
       const response = await fetch(`api/upload`, {
@@ -103,7 +106,9 @@ function FileUploader() {
         )}
       </form>
       {status == StatusVariables.UPLOADING && (
-        <p className="text-3xl font-bold animate-spin">C</p>
+        <p className="text-3xl font-bold animate-spin text-center items-center">
+          <SlReload size={32} />
+        </p>
       )}
       {status == StatusVariables.READY && files && (
         <ul className="flex flex-col gap-2 w-1/2 mt-12">
@@ -127,7 +132,7 @@ function FileUploader() {
                 onClick={() => removeFile(file)}
                 className="hover:opacity-65 font-black "
               >
-                X
+                <SlTrash size={28} />
               </button>
             </li>
           ))}
