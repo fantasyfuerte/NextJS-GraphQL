@@ -4,9 +4,7 @@ import { useState } from "react";
 import { SlReload, SlTrash } from "react-icons/sl";
 import * as XLSX from "xlsx";
 
-function ExcelToJson(file: File) {
-
-}
+function ExcelToJson(file: File) {}
 
 function FileUploader() {
   enum StatusVariables {
@@ -41,7 +39,6 @@ function FileUploader() {
     setStatus(StatusVariables.UPLOADING);
 
     // Procesar excel
-    
 
     try {
       const response = await fetch(`api/upload`, {
