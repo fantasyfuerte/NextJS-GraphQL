@@ -16,11 +16,9 @@ function FileUploader() {
   );
   const [files, setFiles] = useState<File[]>([]);
 
-  // Hacer algo con graphQL
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
     const files = formData.getAll("file") as File[];
 
     files.forEach((file) => {
