@@ -4,7 +4,7 @@ import { useState } from "react";
 
 function FileUploader() {
   enum StatusVariables {
-    READY = "EMPTY",
+    READY = "READY",
     UPLOADING = "UPLOADING",
     SUCCESS = "SUCCESS",
     ERROR = "ERROR",
@@ -15,6 +15,7 @@ function FileUploader() {
     StatusVariables.INITIAL
   );
   const [files, setFiles] = useState<File[]>([]);
+  const [message, setMessage] = useState<string>("");
 
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,15 +26,25 @@ function FileUploader() {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       ) {
         setStatus(StatusVariables.ERROR);
+        setMessage("File must be an xlsx file");
         return;
       }
     });
+
+    const error = status == StatusVariables.ERROR;
+    if (error) {
+      alert(error);
+      return;
+    }
     setStatus(StatusVariables.UPLOADING);
 
     try {
       const response = await fetch(`api/upload`, {
         method: "POST",
         body: JSON.stringify(files),
+      });
+      response.json().then((data) => {
+        setMessage(data.message);
       });
       if (!response.ok) {
         setStatus(StatusVariables.ERROR);
@@ -116,9 +127,7 @@ function FileUploader() {
           ))}
         </ul>
       )}
-      {status == StatusVariables.SUCCESS && (
-        <p className="text-3xl font-bold">Success</p>
-      )}
+      <p className="text-3xl font-bold">{message}</p>
     </article>
   );
 }
