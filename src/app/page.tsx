@@ -5,11 +5,12 @@ export default function Home() {
     <main>
       <section className="mt-16">
         <h1 className="text-xl text-center p-4 text-emerald-400 font-bold">
-          NextJS + GraphQL
+          NextJS + Excel
         </h1>
-        <article className="text-center p-10 my-5 border-b w-1/2 mx-auto">
-          <FileUploader />
-        </article>
+        <p className="text-center text-pretty mb-20 opacity-65 font-semibold">
+          Upload an .xlsx file. Use the button below.
+        </p>
+        <FileUploader />
       </section>
     </main>
   );

@@ -18,21 +18,22 @@ function FileUploader() {
 
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const files = formData.getAll("file") as File[];
-
     files.forEach((file) => {
-      if (!file || file.type !== "application/pdf") {
+      if (
+        !file ||
+        file.type !==
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ) {
         setStatus(StatusVariables.ERROR);
         return;
       }
     });
-
     setStatus(StatusVariables.UPLOADING);
+
     try {
       const response = await fetch(`api/upload`, {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(files),
       });
       if (!response.ok) {
         setStatus(StatusVariables.ERROR);
@@ -62,17 +63,21 @@ function FileUploader() {
         >
           {status == StatusVariables.INITIAL && (
             <label
-              className="cursor-pointer hover:bg-black/10 p-2 my-4 rounded-lg hover:opacity-50 animate-pulse"
+              className="cursor-pointer hover:bg-black/10 p-3 my-4 rounded-lg hover:opacity-50 animate-pulse"
               htmlFor="file-input"
             >
-              Sube un archivo PDF
+              Upload and{" "}
+              <span className="text-emerald-800 underline underline-offset-2">
+                xlsx
+              </span>{" "}
+              file
             </label>
           )}
           <input
             onChange={handleChange}
             type="file"
             name="file"
-            accept=".pdf"
+            accept=".xlsx"
             id="file-input"
             className="hidden"
             multiple
@@ -88,30 +93,32 @@ function FileUploader() {
       {status == StatusVariables.UPLOADING && (
         <p className="text-3xl font-bold animate-spin">C</p>
       )}
-      {(status == StatusVariables.READY || status == StatusVariables.SUCCESS) &&
-        files && (
-          <ul className="flex flex-col gap-2 w-1/2 mt-12">
-            {files.map((file) => (
-              <li key={file.name} className="flex justify-between text-left">
-                <div>
-                  <p>
-                    Nombre:{" "}
-                    <strong className="text-emerald-800">
-                      {file.name.split(".")[0]}
-                    </strong>
-                  </p>
-                  <p>
-                    Tamaño:{" "}
-                    <strong className="text-emerald-800">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </strong>
-                  </p>
-                </div>
-                <button className="hover:opacity-65 font-black ">X</button>
-              </li>
-            ))}
-          </ul>
-        )}
+      {status == StatusVariables.READY && files && (
+        <ul className="flex flex-col gap-2 w-1/2 mt-12">
+          {files.map((file) => (
+            <li key={file.name} className="flex justify-between text-left">
+              <div>
+                <p>
+                  Nombre:{" "}
+                  <strong className="text-emerald-800">
+                    {file.name.split(".")[0]}
+                  </strong>
+                </p>
+                <p>
+                  Tamaño:{" "}
+                  <strong className="text-emerald-800">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </strong>
+                </p>
+              </div>
+              <button className="hover:opacity-65 font-black ">X</button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {status == StatusVariables.SUCCESS && (
+        <p className="text-3xl font-bold">Success</p>
+      )}
     </article>
   );
 }
