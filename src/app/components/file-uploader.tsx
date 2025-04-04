@@ -43,7 +43,11 @@ function FileUploader() {
     fetch("/api/upload", {
       method: "POST",
       body: formData,
-    });
+    })
+      .then((data) => data.json())
+      .then((data) => {
+        console.log(data);
+      });
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
