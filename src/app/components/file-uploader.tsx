@@ -29,7 +29,7 @@ function FileUploader() {
         file.type !==
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       ) {
-        setDenegatedFiles([...denegatedFiles, file]);
+        setDenegatedFiles((prev) => [...prev, file]);
         continue;
       }
       formData.append("file", file);
@@ -143,13 +143,38 @@ function FileUploader() {
       )}
       <p className="text-3xl font-bold">{message}</p>
       {StatusVariables.INITIAL !== status && (
-        <p className="text-3xl font-bold">
-          {denegatedFiles.length} denegated files
-        </p>
+        <div>
+          <p className="text-3xl font-bold">
+            {denegatedFiles.length} denegated files
+          </p>
+          <ul className="mt-10">
+            {denegatedFiles.map((file) => (
+              <li key={file.name} className="flex justify-between text-left">
+                <div>
+                  <p>
+                    Filename:{" "}
+                    <strong className="text-red-800">
+                      {file.name.split(".")[0]}
+                    </strong>
+                  </p>
+                  <p>
+                    Size:{" "}
+                    <strong className="text-red-800">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </strong>
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {status == StatusVariables.ERROR && (
         <button
-          onClick={() => setStatus(StatusVariables.INITIAL)}
+          onClick={() => {
+            setMessage("");
+            setStatus(StatusVariables.INITIAL);
+          }}
           className="bg-red-100 px-4 py-2 rounded-lg hover:bg-red-300"
         >
           Try again
