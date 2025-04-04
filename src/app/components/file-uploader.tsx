@@ -22,6 +22,7 @@ function FileUploader() {
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData();
+    setStatus(StatusVariables.UPLOADING);
 
     for (const file of files) {
       if (
@@ -34,7 +35,6 @@ function FileUploader() {
       }
       formData.append("file", file);
     }
-    setStatus(StatusVariables.UPLOADING);
     if (formData.getAll("file").length === 0) {
       setStatus(StatusVariables.ERROR);
       setMessage("File must be an xlsx, try again");
@@ -47,6 +47,8 @@ function FileUploader() {
       .then((data) => data.json())
       .then((data) => {
         console.log(data);
+        setStatus(StatusVariables.SUCCESS);
+        setMessage("Files uploaded successfully");
       });
   }
 
