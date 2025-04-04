@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 import { SlReload, SlTrash } from "react-icons/sl";
-import * as XLSX from "xlsx";
-
-function ExcelToJson(file: File) {}
 
 function FileUploader() {
   enum StatusVariables {
@@ -19,10 +16,12 @@ function FileUploader() {
     StatusVariables.INITIAL
   );
   const [files, setFiles] = useState<File[]>([]);
+  const [denegatedFiles, setDenegatedFiles] = useState<File[]>([]);
   const [message, setMessage] = useState<string>("");
 
   async function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const formData = new FormData();
 
     for (const file of files) {
       if (
@@ -30,20 +29,21 @@ function FileUploader() {
         file.type !==
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       ) {
-        setStatus(StatusVariables.ERROR);
-        setMessage("File must be an xlsx file");
-        setFiles([]);
-        return;
+        setDenegatedFiles([...denegatedFiles, file]);
+        continue;
       }
+      formData.append("file", file);
     }
     setStatus(StatusVariables.UPLOADING);
-
-    // Procesar excel
-
+    if (formData.getAll("file").length === 0) {
+      setStatus(StatusVariables.ERROR);
+      setMessage("File must be an xlsx, try again");
+      return;
+    }
     try {
       const response = await fetch(`api/upload`, {
         method: "POST",
-        body: JSON.stringify(files),
+        body: formData,
       });
       response.json().then((data) => {
         setMessage(data.message);
@@ -119,13 +119,13 @@ function FileUploader() {
             <li key={file.name} className="flex justify-between text-left">
               <div>
                 <p>
-                  Nombre:{" "}
+                  Filename:{" "}
                   <strong className="text-emerald-800">
                     {file.name.split(".")[0]}
                   </strong>
                 </p>
                 <p>
-                  Tamaño:{" "}
+                  Size:{" "}
                   <strong className="text-emerald-800">
                     {(file.size / 1024 / 1024).toFixed(2)} MB
                   </strong>
@@ -142,6 +142,9 @@ function FileUploader() {
         </ul>
       )}
       <p className="text-3xl font-bold">{message}</p>
+      <p className="text-xl font-bold">
+        {denegatedFiles.length} denegated files
+      </p>
       {status == StatusVariables.ERROR && (
         <button
           onClick={() => setStatus(StatusVariables.INITIAL)}
