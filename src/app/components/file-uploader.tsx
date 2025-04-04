@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { SlReload, SlTrash } from "react-icons/sl";
-import { client } from "../lib/graphql";
-import { gql } from "@apollo/client";
 
 function FileUploader() {
   enum StatusVariables {
@@ -42,6 +40,10 @@ function FileUploader() {
       setMessage("File must be an xlsx, try again");
       return;
     }
+    fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
