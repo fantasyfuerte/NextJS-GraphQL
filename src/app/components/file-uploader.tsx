@@ -142,9 +142,11 @@ function FileUploader() {
         </ul>
       )}
       <p className="text-3xl font-bold">{message}</p>
-      <p className="text-xl font-bold">
-        {denegatedFiles.length} denegated files
-      </p>
+      {StatusVariables.INITIAL !== status && (
+        <p className="text-3xl font-bold">
+          {denegatedFiles.length} denegated files
+        </p>
+      )}
       {status == StatusVariables.ERROR && (
         <button
           onClick={() => setStatus(StatusVariables.INITIAL)}
