@@ -1,6 +1,6 @@
-# NextJS GraphQL
+# NextJS Excel
 
-This is a simple example of how to use GraphQL with NextJS.
+This is a simple example of how to upload excel file with NextJS.
 
 ## Getting Started
 
