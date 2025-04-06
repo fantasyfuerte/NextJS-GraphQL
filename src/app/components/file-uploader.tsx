@@ -1,178 +1,167 @@
 "use client";
 
 import { useState } from "react";
-import { SlReload, SlTrash } from "react-icons/sl";
+import { SlTrash } from "react-icons/sl";
+
+// to-dos
+// recuperar los archivos ✅
+// mostrar la lista de archivos antes de subir ✅
+// habilitar la funcion de eliminar archivos antes de subir ✅
+// validar filetype ✅
+// pasar los archivos a api/upload ✅
+// renderizados condicionales ✅
+// agrupar los archivos denegados ✅
+
+enum APP_STATUS {
+  INITIAL = "initial",
+  READY = "ready",
+  UPLOADING = "uploading",
+  ERROR = "error",
+  SUCCESS = "success",
+}
 
 function FileUploader() {
-  enum StatusVariables {
-    READY = "READY",
-    UPLOADING = "UPLOADING",
-    SUCCESS = "SUCCESS",
-    ERROR = "ERROR",
-    INITIAL = "INITIAL",
+  const [appStatus, setAppStatus] = useState<APP_STATUS>(APP_STATUS.INITIAL);
+  const [files, setFiles] = useState<File[]>([]);
+  const [wrongFiles, setWrongFiles] = useState<File[]>([]);
+  const [message, setMessage] = useState<string>();
+
+  function addFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files || e.target.files.length == 0) {
+      setAppStatus(APP_STATUS.INITIAL);
+      return;
+    }
+    setFiles([...e.target.files]);
+    e.target.value = "";
+    setAppStatus(APP_STATUS.READY);
+  }
+  function removeFile(fileToDelete: File) {
+    setFiles((prev) => prev.filter((file) => file !== fileToDelete));
+    if (files.length == 1) setAppStatus(APP_STATUS.INITIAL);
   }
 
-  const [status, setStatus] = useState<StatusVariables>(
-    StatusVariables.INITIAL
-  );
-  const [files, setFiles] = useState<File[]>([]);
-  const [denegatedFiles, setDenegatedFiles] = useState<File[]>([]);
-  const [message, setMessage] = useState<string>("");
-
-  async function Submit(e: React.FormEvent<HTMLFormElement>) {
+  function Submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData();
-    setStatus(StatusVariables.UPLOADING);
-
+    const data = new FormData();
     for (const file of files) {
       if (
-        !file ||
+        file.name.split(".")[1] !== "xlsx" ||
         file.type !==
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       ) {
-        setDenegatedFiles((prev) => [...prev, file]);
+        setWrongFiles((prev) => [...prev, file]);
         continue;
       }
-      formData.append("file", file);
+      data.append("file", file);
     }
-    if (formData.getAll("file").length === 0) {
-      setStatus(StatusVariables.ERROR);
-      setMessage("File must be an xlsx, try again");
+    if (data.getAll("file").length == 0) {
+      setAppStatus(APP_STATUS.ERROR);
+      setFiles([]);
       return;
     }
-    fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((data) => data.json())
-      .then((data) => {
-        console.log(data);
-        setStatus(StatusVariables.SUCCESS);
-        setMessage("Files uploaded successfully");
-      });
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files) {
-      setStatus(StatusVariables.INITIAL);
-      return;
+    setAppStatus(APP_STATUS.UPLOADING);
+    try {
+      fetch("/api/upload", { method: "POST", body: data })
+        .then((data) => data.json())
+        .then((data) => {
+          console.log(data);
+          setMessage(data.message);
+        });
+      setAppStatus(APP_STATUS.SUCCESS);
+    } catch (e) {
+      setAppStatus(APP_STATUS.ERROR);
+      setMessage("Error uploading file");
     }
-    setStatus(StatusVariables.READY);
-    setFiles([...e.target.files]);
-  }
-
-  function removeFile(file: File) {
-    setFiles(files.filter((f) => f.name !== file.name || f.size !== file.size));
-    if (files.length === 0) setStatus(StatusVariables.INITIAL);
   }
 
   return (
-    <article className="flex flex-col items-center gap-5">
-      <form onSubmit={Submit} className="flex flex-col items-center gap-5">
-        <button
-          className="text-center text-xl text-emerald-400 font-bold"
-          type="button"
-        >
-          {status == StatusVariables.INITIAL && (
-            <label
-              className="cursor-pointer hover:bg-black/10 p-3 my-4 rounded-lg hover:opacity-50 animate-pulse"
-              htmlFor="file-input"
-            >
-              Upload and{" "}
-              <span className="text-emerald-800 underline underline-offset-2">
-                xlsx
-              </span>{" "}
-              file
-            </label>
-          )}
+    <article className="flex flex-col items-center gap-4">
+      {appStatus == APP_STATUS.INITIAL || appStatus == APP_STATUS.READY ? (
+        <form className="flex flex-col items-center" onSubmit={Submit}>
           <input
-            onChange={handleChange}
             type="file"
-            name="file"
-            accept=".xlsx"
-            id="file-input"
-            className="hidden"
             multiple
-          />
-        </button>
-        {(status == StatusVariables.READY ||
-          status == StatusVariables.UPLOADING) && (
-          <button className="bg-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-300">
-            {status === StatusVariables.READY ? "Subir Archivo" : "Subiendo..."}
-          </button>
-        )}
-      </form>
-      {status == StatusVariables.UPLOADING && (
-        <p className="text-3xl font-bold animate-spin text-center items-center">
-          <SlReload size={32} />
-        </p>
-      )}
-      {status == StatusVariables.READY && files && (
-        <ul className="flex flex-col gap-2 w-1/2 mt-12">
-          {files.map((file) => (
-            <li key={file.name} className="flex justify-between text-left">
+            accept=".xlsx"
+            id="input-file"
+            className="hidden"
+            onChange={addFiles}
+          ></input>
+          {appStatus == APP_STATUS.INITIAL ? (
+            <label
+              className="px-3 py-2 font-semibold bg-emerald-200 rounded-xl text-black/90 hover:bg-emerald-200/70 hover:cursor-pointer text-center w-fit mb-4"
+              htmlFor="input-file"
+            >
+              Select files
+            </label>
+          ) : (
+            <div className="flex flex-col w-[85vh]">
+              <button className="px-3 py-2 font-semibold bg-emerald-200 rounded-xl text-black/90 hover:bg-emerald-200/70 hover:cursor-pointer text-center w-fit mb-4 self-center">
+                Upload
+              </button>
+              <ul>
+                {files.map((file) => (
+                  <li
+                    className="flex justify-between items-center my-2"
+                    key={file.name + file.size}
+                  >
+                    <div>
+                      <p>
+                        Name: <strong>{file.name}</strong>{" "}
+                      </p>
+                      <p>
+                        Size:{" "}
+                        <strong>
+                          {(file.size / 1024 / 1024).toFixed(2)}MB
+                        </strong>
+                      </p>
+                    </div>
+                    <button
+                      className="hover:opacity-70"
+                      onClick={() => removeFile(file)}
+                    >
+                      <SlTrash size={30} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </form>
+      ) : (
+        <ul>
+          <p className="font-semibold">{wrongFiles.length} files rejected</p>
+          {wrongFiles.map((file) => (
+            <li
+              className="flex justify-start items-center my-2"
+              key={file.name + file.size}
+            >
               <div>
                 <p>
-                  Filename:{" "}
-                  <strong className="text-emerald-800">
-                    {file.name.split(".")[0]}
-                  </strong>
+                  Name: <strong className="text-red-900">{file.name}</strong>{" "}
                 </p>
                 <p>
                   Size:{" "}
-                  <strong className="text-emerald-800">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  <strong className="text-red-900">
+                    {(file.size / 1024 / 1024).toFixed(2)}MB
                   </strong>
                 </p>
               </div>
-              <button
-                onClick={() => removeFile(file)}
-                className="hover:opacity-65 font-black "
-              >
-                <SlTrash size={28} />
-              </button>
             </li>
           ))}
         </ul>
       )}
-      <p className="text-3xl font-bold">{message}</p>
-      {StatusVariables.INITIAL !== status && (
+      {(appStatus == APP_STATUS.SUCCESS || appStatus == APP_STATUS.ERROR) && (
         <div>
-          <p className="text-3xl font-bold">
-            {denegatedFiles.length} denegated files
-          </p>
-          <ul className="mt-10">
-            {denegatedFiles.map((file) => (
-              <li key={file.name} className="flex justify-between text-left">
-                <div>
-                  <p>
-                    Filename:{" "}
-                    <strong className="text-red-800">
-                      {file.name.split(".")[0]}
-                    </strong>
-                  </p>
-                  <p>
-                    Size:{" "}
-                    <strong className="text-red-800">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </strong>
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <p className="text-xl font-semibold">{message}</p>
+          {appStatus == APP_STATUS.ERROR && (
+            <button
+              className="px-3 py-2 font-semibold bg-red-200 rounded-xl text-black/90 hover:bg-emerald-200/70 hover:cursor-pointer text-center w-fit mb-4 self-center"
+              onClick={() => setAppStatus(APP_STATUS.INITIAL)}
+            >
+              Try again
+            </button>
+          )}
         </div>
-      )}
-      {status == StatusVariables.ERROR && (
-        <button
-          onClick={() => {
-            setMessage("");
-            setStatus(StatusVariables.INITIAL);
-          }}
-          className="bg-red-100 px-4 py-2 rounded-lg hover:bg-red-300"
-        >
-          Try again
-        </button>
       )}
     </article>
   );
