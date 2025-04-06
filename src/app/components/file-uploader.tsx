@@ -32,7 +32,6 @@ function FileUploader() {
       return;
     }
     setFiles([...e.target.files]);
-    e.target.value = "";
     setAppStatus(APP_STATUS.READY);
   }
   function removeFile(fileToDelete: File) {
